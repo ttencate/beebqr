@@ -16,17 +16,14 @@ bool is_function_pattern(int i, int j) {
   if (i < 8 && j >= MODULES_PER_SIDE - 8) {
     return true;
   }
+  // Timing patterns
+  if (i == 6 || j == 6) {
+    return true;
+  }
   return false;
 }
 
-unsigned char function_pattern_at(int i, int j) {
-  // Finder patterns
-  if (i >= MODULES_PER_SIDE - 8) {
-    i -= MODULES_PER_SIDE - 7;
-  }
-  if (j >= MODULES_PER_SIDE - 8) {
-    j -= MODULES_PER_SIDE - 7;
-  }
+unsigned char finder_pattern_at(int i, int j) {
   if (i == -1 || i == 7 || j == -1 || j == 7) {
     return LIGHT;
   }
@@ -35,6 +32,24 @@ unsigned char function_pattern_at(int i, int j) {
   }
   if (i == 1 || i == 5 || j == 1 || j == 5) {
     return LIGHT;
+  }
+  return DARK;
+}
+
+unsigned char function_pattern_at(int i, int j) {
+  // Finder patterns
+  if (i <= 7 && j <= 7) {
+    return finder_pattern_at(i, j);
+  }
+  if (i >= MODULES_PER_SIDE - 8 && j <= 7) {
+    return finder_pattern_at(i - MODULES_PER_SIDE + 7, j);
+  }
+  if (i <= 7 && j >= MODULES_PER_SIDE - 8) {
+    return finder_pattern_at(i, j - MODULES_PER_SIDE + 7);
+  }
+  // Timing patterns
+  if (i == 6 || j == 6) {
+    return ((i+j) % 2) ? LIGHT : DARK;
   }
   return DARK;
 }
