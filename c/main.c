@@ -41,7 +41,7 @@ int main() {
       if (i < 0 || i >= MODULES_PER_SIDE || j < 0 || j >= MODULES_PER_SIDE) {
         pixel = 0xff;
       } else {
-        pixel = output[j * MODULES_PER_SIDE + i];
+        pixel = output[i * MODULES_PER_SIDE + j];
       }
       image[y * PIXELS_PER_SIDE + x] = pixel;
     }

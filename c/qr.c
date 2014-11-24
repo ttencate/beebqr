@@ -86,11 +86,54 @@ unsigned char function_pattern_at(int i, int j) {
   return ((i+j) % 2) ? LIGHT : DARK;
 }
 
+unsigned short encode_version_info(unsigned char data_mask_pattern) {
+  // TODO handle non-000 data mask patterns (tabularize by hand for 8 possible values)
+  unsigned short version_info = 0x23d6;
+  unsigned short version_info_xor = 0x5412; // fixed xor mask to prevent all zeros
+  return version_info ^ version_info_xor;
+}
+
 void qr(const char *input, int count, unsigned char *output) {
+  // Function patterns
   for (int i = 0; i < MODULES_PER_SIDE; i++) {
     for (int j = 0; j < MODULES_PER_SIDE; j++) {
       output[i * MODULES_PER_SIDE + j] =
         is_function_pattern(i, j) ? function_pattern_at(i, j) : LIGHT;
     }
   }
+
+  // Format information
+  unsigned short version_info = encode_version_info(0x0);
+  output[0 * MODULES_PER_SIDE + 8] = version_info & 0x0001 ? DARK : LIGHT;
+  output[1 * MODULES_PER_SIDE + 8] = version_info & 0x0002 ? DARK : LIGHT;
+  output[2 * MODULES_PER_SIDE + 8] = version_info & 0x0004 ? DARK : LIGHT;
+  output[3 * MODULES_PER_SIDE + 8] = version_info & 0x0008 ? DARK : LIGHT;
+  output[4 * MODULES_PER_SIDE + 8] = version_info & 0x0010 ? DARK : LIGHT;
+  output[5 * MODULES_PER_SIDE + 8] = version_info & 0x0020 ? DARK : LIGHT;
+  output[7 * MODULES_PER_SIDE + 8] = version_info & 0x0040 ? DARK : LIGHT;
+  output[8 * MODULES_PER_SIDE + 8] = version_info & 0x0080 ? DARK : LIGHT;
+  output[8 * MODULES_PER_SIDE + 7] = version_info & 0x0100 ? DARK : LIGHT;
+  output[8 * MODULES_PER_SIDE + 5] = version_info & 0x0200 ? DARK : LIGHT;
+  output[8 * MODULES_PER_SIDE + 4] = version_info & 0x0400 ? DARK : LIGHT;
+  output[8 * MODULES_PER_SIDE + 3] = version_info & 0x0800 ? DARK : LIGHT;
+  output[8 * MODULES_PER_SIDE + 2] = version_info & 0x1000 ? DARK : LIGHT;
+  output[8 * MODULES_PER_SIDE + 1] = version_info & 0x2000 ? DARK : LIGHT;
+  output[8 * MODULES_PER_SIDE + 0] = version_info & 0x4000 ? DARK : LIGHT;
+
+  output[8 * MODULES_PER_SIDE + MODULES_PER_SIDE - 1] = version_info & 0x0001 ? DARK : LIGHT;
+  output[8 * MODULES_PER_SIDE + MODULES_PER_SIDE - 2] = version_info & 0x0002 ? DARK : LIGHT;
+  output[8 * MODULES_PER_SIDE + MODULES_PER_SIDE - 3] = version_info & 0x0004 ? DARK : LIGHT;
+  output[8 * MODULES_PER_SIDE + MODULES_PER_SIDE - 4] = version_info & 0x0008 ? DARK : LIGHT;
+  output[8 * MODULES_PER_SIDE + MODULES_PER_SIDE - 5] = version_info & 0x0010 ? DARK : LIGHT;
+  output[8 * MODULES_PER_SIDE + MODULES_PER_SIDE - 6] = version_info & 0x0020 ? DARK : LIGHT;
+  output[8 * MODULES_PER_SIDE + MODULES_PER_SIDE - 7] = version_info & 0x0040 ? DARK : LIGHT;
+  output[8 * MODULES_PER_SIDE + MODULES_PER_SIDE - 8] = version_info & 0x0080 ? DARK : LIGHT;
+  output[(MODULES_PER_SIDE - 7) * MODULES_PER_SIDE + 8] = version_info & 0x0100 ? DARK : LIGHT;
+  output[(MODULES_PER_SIDE - 6) * MODULES_PER_SIDE + 8] = version_info & 0x0200 ? DARK : LIGHT;
+  output[(MODULES_PER_SIDE - 5) * MODULES_PER_SIDE + 8] = version_info & 0x0400 ? DARK : LIGHT;
+  output[(MODULES_PER_SIDE - 4) * MODULES_PER_SIDE + 8] = version_info & 0x0800 ? DARK : LIGHT;
+  output[(MODULES_PER_SIDE - 3) * MODULES_PER_SIDE + 8] = version_info & 0x1000 ? DARK : LIGHT;
+  output[(MODULES_PER_SIDE - 2) * MODULES_PER_SIDE + 8] = version_info & 0x2000 ? DARK : LIGHT;
+  output[(MODULES_PER_SIDE - 1) * MODULES_PER_SIDE + 8] = version_info & 0x4000 ? DARK : LIGHT;
+  output[(MODULES_PER_SIDE - 8) * MODULES_PER_SIDE + 8] = DARK;
 }
