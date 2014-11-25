@@ -113,11 +113,15 @@ unsigned char function_pattern_at(int i, int j) {
   return ((i+j) % 2) ? LIGHT : DARK;
 }
 
-unsigned short encode_version_info(unsigned char data_mask_pattern) {
+unsigned short encode_format_info(unsigned char data_mask_pattern) {
   // TODO handle non-000 data mask patterns (tabularize by hand for 8 possible values)
   unsigned short version_info = 0x23d6;
   unsigned short version_info_xor = 0x5412; // fixed xor mask to prevent all zeros
   return version_info ^ version_info_xor;
+}
+
+unsigned int encode_version_info() {
+  return 0x28c69;
 }
 
 void encode_data(const char *input, int count, unsigned char *data) {
@@ -160,39 +164,47 @@ void qr(const char *input, int count, unsigned char *output) {
   }
 
   // Format information
-  unsigned short version_info = encode_version_info(0x0);
-  output[0 * MODULES_PER_SIDE + 8] = version_info & 0x0001 ? DARK : LIGHT;
-  output[1 * MODULES_PER_SIDE + 8] = version_info & 0x0002 ? DARK : LIGHT;
-  output[2 * MODULES_PER_SIDE + 8] = version_info & 0x0004 ? DARK : LIGHT;
-  output[3 * MODULES_PER_SIDE + 8] = version_info & 0x0008 ? DARK : LIGHT;
-  output[4 * MODULES_PER_SIDE + 8] = version_info & 0x0010 ? DARK : LIGHT;
-  output[5 * MODULES_PER_SIDE + 8] = version_info & 0x0020 ? DARK : LIGHT;
-  output[7 * MODULES_PER_SIDE + 8] = version_info & 0x0040 ? DARK : LIGHT;
-  output[8 * MODULES_PER_SIDE + 8] = version_info & 0x0080 ? DARK : LIGHT;
-  output[8 * MODULES_PER_SIDE + 7] = version_info & 0x0100 ? DARK : LIGHT;
-  output[8 * MODULES_PER_SIDE + 5] = version_info & 0x0200 ? DARK : LIGHT;
-  output[8 * MODULES_PER_SIDE + 4] = version_info & 0x0400 ? DARK : LIGHT;
-  output[8 * MODULES_PER_SIDE + 3] = version_info & 0x0800 ? DARK : LIGHT;
-  output[8 * MODULES_PER_SIDE + 2] = version_info & 0x1000 ? DARK : LIGHT;
-  output[8 * MODULES_PER_SIDE + 1] = version_info & 0x2000 ? DARK : LIGHT;
-  output[8 * MODULES_PER_SIDE + 0] = version_info & 0x4000 ? DARK : LIGHT;
+  unsigned short format_info = encode_format_info(0x0);
+  output[0 * MODULES_PER_SIDE + 8] = format_info & 0x0001 ? DARK : LIGHT;
+  output[1 * MODULES_PER_SIDE + 8] = format_info & 0x0002 ? DARK : LIGHT;
+  output[2 * MODULES_PER_SIDE + 8] = format_info & 0x0004 ? DARK : LIGHT;
+  output[3 * MODULES_PER_SIDE + 8] = format_info & 0x0008 ? DARK : LIGHT;
+  output[4 * MODULES_PER_SIDE + 8] = format_info & 0x0010 ? DARK : LIGHT;
+  output[5 * MODULES_PER_SIDE + 8] = format_info & 0x0020 ? DARK : LIGHT;
+  output[7 * MODULES_PER_SIDE + 8] = format_info & 0x0040 ? DARK : LIGHT;
+  output[8 * MODULES_PER_SIDE + 8] = format_info & 0x0080 ? DARK : LIGHT;
+  output[8 * MODULES_PER_SIDE + 7] = format_info & 0x0100 ? DARK : LIGHT;
+  output[8 * MODULES_PER_SIDE + 5] = format_info & 0x0200 ? DARK : LIGHT;
+  output[8 * MODULES_PER_SIDE + 4] = format_info & 0x0400 ? DARK : LIGHT;
+  output[8 * MODULES_PER_SIDE + 3] = format_info & 0x0800 ? DARK : LIGHT;
+  output[8 * MODULES_PER_SIDE + 2] = format_info & 0x1000 ? DARK : LIGHT;
+  output[8 * MODULES_PER_SIDE + 1] = format_info & 0x2000 ? DARK : LIGHT;
+  output[8 * MODULES_PER_SIDE + 0] = format_info & 0x4000 ? DARK : LIGHT;
 
-  output[8 * MODULES_PER_SIDE + MODULES_PER_SIDE - 1] = version_info & 0x0001 ? DARK : LIGHT;
-  output[8 * MODULES_PER_SIDE + MODULES_PER_SIDE - 2] = version_info & 0x0002 ? DARK : LIGHT;
-  output[8 * MODULES_PER_SIDE + MODULES_PER_SIDE - 3] = version_info & 0x0004 ? DARK : LIGHT;
-  output[8 * MODULES_PER_SIDE + MODULES_PER_SIDE - 4] = version_info & 0x0008 ? DARK : LIGHT;
-  output[8 * MODULES_PER_SIDE + MODULES_PER_SIDE - 5] = version_info & 0x0010 ? DARK : LIGHT;
-  output[8 * MODULES_PER_SIDE + MODULES_PER_SIDE - 6] = version_info & 0x0020 ? DARK : LIGHT;
-  output[8 * MODULES_PER_SIDE + MODULES_PER_SIDE - 7] = version_info & 0x0040 ? DARK : LIGHT;
-  output[8 * MODULES_PER_SIDE + MODULES_PER_SIDE - 8] = version_info & 0x0080 ? DARK : LIGHT;
-  output[(MODULES_PER_SIDE - 7) * MODULES_PER_SIDE + 8] = version_info & 0x0100 ? DARK : LIGHT;
-  output[(MODULES_PER_SIDE - 6) * MODULES_PER_SIDE + 8] = version_info & 0x0200 ? DARK : LIGHT;
-  output[(MODULES_PER_SIDE - 5) * MODULES_PER_SIDE + 8] = version_info & 0x0400 ? DARK : LIGHT;
-  output[(MODULES_PER_SIDE - 4) * MODULES_PER_SIDE + 8] = version_info & 0x0800 ? DARK : LIGHT;
-  output[(MODULES_PER_SIDE - 3) * MODULES_PER_SIDE + 8] = version_info & 0x1000 ? DARK : LIGHT;
-  output[(MODULES_PER_SIDE - 2) * MODULES_PER_SIDE + 8] = version_info & 0x2000 ? DARK : LIGHT;
-  output[(MODULES_PER_SIDE - 1) * MODULES_PER_SIDE + 8] = version_info & 0x4000 ? DARK : LIGHT;
+  output[8 * MODULES_PER_SIDE + MODULES_PER_SIDE - 1] = format_info & 0x0001 ? DARK : LIGHT;
+  output[8 * MODULES_PER_SIDE + MODULES_PER_SIDE - 2] = format_info & 0x0002 ? DARK : LIGHT;
+  output[8 * MODULES_PER_SIDE + MODULES_PER_SIDE - 3] = format_info & 0x0004 ? DARK : LIGHT;
+  output[8 * MODULES_PER_SIDE + MODULES_PER_SIDE - 4] = format_info & 0x0008 ? DARK : LIGHT;
+  output[8 * MODULES_PER_SIDE + MODULES_PER_SIDE - 5] = format_info & 0x0010 ? DARK : LIGHT;
+  output[8 * MODULES_PER_SIDE + MODULES_PER_SIDE - 6] = format_info & 0x0020 ? DARK : LIGHT;
+  output[8 * MODULES_PER_SIDE + MODULES_PER_SIDE - 7] = format_info & 0x0040 ? DARK : LIGHT;
+  output[8 * MODULES_PER_SIDE + MODULES_PER_SIDE - 8] = format_info & 0x0080 ? DARK : LIGHT;
+  output[(MODULES_PER_SIDE - 7) * MODULES_PER_SIDE + 8] = format_info & 0x0100 ? DARK : LIGHT;
+  output[(MODULES_PER_SIDE - 6) * MODULES_PER_SIDE + 8] = format_info & 0x0200 ? DARK : LIGHT;
+  output[(MODULES_PER_SIDE - 5) * MODULES_PER_SIDE + 8] = format_info & 0x0400 ? DARK : LIGHT;
+  output[(MODULES_PER_SIDE - 4) * MODULES_PER_SIDE + 8] = format_info & 0x0800 ? DARK : LIGHT;
+  output[(MODULES_PER_SIDE - 3) * MODULES_PER_SIDE + 8] = format_info & 0x1000 ? DARK : LIGHT;
+  output[(MODULES_PER_SIDE - 2) * MODULES_PER_SIDE + 8] = format_info & 0x2000 ? DARK : LIGHT;
+  output[(MODULES_PER_SIDE - 1) * MODULES_PER_SIDE + 8] = format_info & 0x4000 ? DARK : LIGHT;
   output[(MODULES_PER_SIDE - 8) * MODULES_PER_SIDE + 8] = DARK;
+
+  // Version information
+  unsigned int version_info = encode_version_info();
+  for (int bit = 0; bit < 18; bit++) {
+    unsigned char module = version_info & (1 << bit) ? DARK : LIGHT;
+    output[(MODULES_PER_SIDE - 11 + bit%3) * MODULES_PER_SIDE + (bit/3)] = module;
+    output[(bit/3) * MODULES_PER_SIDE + (MODULES_PER_SIDE - 11 + bit%3)] = module;
+  }
 
   // Data and error correction
   unsigned char data[CODEWORDS];
