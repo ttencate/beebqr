@@ -39,6 +39,11 @@ bool is_function_pattern(int i, int j) {
   return false;
 }
 
+bool is_data_pattern(int i, int j) {
+  // TODO version information blocks
+  return !is_function_pattern(i, j);
+}
+
 unsigned char finder_pattern_at(int i, int j) {
   if (i == -1 || i == 7 || j == -1 || j == 7) {
     return LIGHT;
@@ -95,24 +100,33 @@ unsigned short encode_version_info(unsigned char data_mask_pattern) {
 }
 
 void encode_data(const char *input, int count, unsigned char *data) {
+  // Start with zeros to ensure ORing works
   memset(data, 0, CODEWORDS);
+
+  // Copy data nibbles
+  int i = 0;
   // High 4 bits: 0100 = binary mode.
   // Low 4 bits: high 4 bits of data length.
-  data[0] = 0x80 | (count >> 12);
+  data[i++] = 0x80 | (count >> 12);
   // Middle 8 bits of data length.
-  data[1] = 0xff & (count >> 4);
+  data[i++] = 0xff & (count >> 4);
   // High 4 bits: low 4 bits of data length.
   // Low 4 bits: first 4 bits of actual data (filled in later).
-  data[2] = 0xf0 & (count << 4);
-  for (int i = 0; i < count; i++) {
+  data[i] = 0xf0 & (count << 4);
+  for (; i < count;) {
     unsigned char byte = input[i];
-    data[i + 2] |= (byte >> 4);
-    data[i + 3] |= 0xf0 & (byte << 4); // Low 4 bits of last byte left at 0000: terminator.
+    data[i++] |= (byte >> 4);
+    data[i] |= 0xf0 & (byte << 4);
   }
+  i++; // Low 4 bits of last byte left at 0000: terminator.
+
+  // Add padding to fill up data area
   const unsigned char PAD_CODEWORDS[] = {0xec, 0x11};
-  for (int i = count + 3, j = 0; i < DATA_CODEWORDS; i++, j = 1 - j) {
+  for (int j = 0; i < DATA_CODEWORDS; i++, j = 1 - j) {
     data[i] = PAD_CODEWORDS[j];
   }
+
+  // TODO add error correction codewords
 }
 
 void qr(const char *input, int count, unsigned char *output) {
@@ -162,4 +176,28 @@ void qr(const char *input, int count, unsigned char *output) {
   // Data and error correction
   unsigned char data[CODEWORDS];
   encode_data(input, count, data);
+  int i = MODULES_PER_SIDE - 1, j = MODULES_PER_SIDE - 1;
+  int direction = -1;
+  for (int bit = 0; bit < 8 * CODEWORDS; bit++) {
+    unsigned char module = data[bit / 8] & (1 << (7 - bit % 8)) ? DARK : LIGHT;
+    output[i * MODULES_PER_SIDE + j] = module;
+    do {
+      if (j % 2 == 0) {
+        j--;
+      } else {
+        j++;
+        i += direction;
+        if (i < 0) {
+          direction = -direction;
+          i++;
+          j -= 2;
+        } else if (i >= MODULES_PER_SIDE) {
+          direction = -direction;
+          i--;
+          j -= 2;
+        }
+      }
+    }
+    while (!is_data_pattern(i, j));
+  }
 }
