@@ -67,7 +67,7 @@ int main() {
 
   png_set_IHDR(png_ptr, info_ptr,
       PIXELS_PER_SIDE, PIXELS_PER_SIDE,
-      1, PNG_COLOR_TYPE_GRAY,
+      8, PNG_COLOR_TYPE_GRAY,
       PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
 
   unsigned char *row_pointers[PIXELS_PER_SIDE];

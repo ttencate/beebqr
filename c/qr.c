@@ -1,10 +1,12 @@
 #include "qr.h"
 
 #include <stdbool.h>
+#include <stdio.h>
 #include <string.h>
 
 #define DARK 0x00
 #define LIGHT 0xff
+#define DEBUG_GREY 0x80
 
 const int alignment_patterns[] = {6, 30, 58, 86, 114, 142, 170};
 
@@ -39,9 +41,28 @@ bool is_function_pattern(int i, int j) {
   return false;
 }
 
+bool is_format_info(int i, int j) {
+  if (i == 8 && (j < 6 || j == 7 || j == 8 || j >= MODULES_PER_SIDE - 8)) {
+    return true;
+  }
+  if (j == 8 && (i < 6 || i == 7 || i == 8 || i >= MODULES_PER_SIDE - 8)) {
+    return true;
+  }
+  return false;
+}
+
+bool is_version_info(int i, int j) {
+  if (i >= MODULES_PER_SIDE - 11 && i < MODULES_PER_SIDE - 8 && j < 6) {
+    return true;
+  }
+  if (j >= MODULES_PER_SIDE - 11 && j < MODULES_PER_SIDE - 8 && i < 6) {
+    return true;
+  }
+  return false;
+}
+
 bool is_data_pattern(int i, int j) {
-  // TODO version information blocks
-  return !is_function_pattern(i, j);
+  return !is_function_pattern(i, j) && !is_format_info(i, j) && !is_version_info(i, j);
 }
 
 unsigned char finder_pattern_at(int i, int j) {
@@ -107,7 +128,7 @@ void encode_data(const char *input, int count, unsigned char *data) {
   int i = 0;
   // High 4 bits: 0100 = binary mode.
   // Low 4 bits: high 4 bits of data length.
-  data[i++] = 0x80 | (count >> 12);
+  data[i++] = 0x40 | (count >> 12);
   // Middle 8 bits of data length.
   data[i++] = 0xff & (count >> 4);
   // High 4 bits: low 4 bits of data length.
@@ -178,26 +199,32 @@ void qr(const char *input, int count, unsigned char *output) {
   encode_data(input, count, data);
   int i = MODULES_PER_SIDE - 1, j = MODULES_PER_SIDE - 1;
   int direction = -1;
+  fprintf(stderr, "%d\n", data[0]);
   for (int bit = 0; bit < 8 * CODEWORDS; bit++) {
     unsigned char module = data[bit / 8] & (1 << (7 - bit % 8)) ? DARK : LIGHT;
+    // unsigned char module = (unsigned char) ((bit * 0x20) % 0x100);
     output[i * MODULES_PER_SIDE + j] = module;
-    do {
-      if (j % 2 == 0) {
-        j--;
-      } else {
-        j++;
-        i += direction;
-        if (i < 0) {
-          direction = -direction;
-          i++;
-          j -= 2;
-        } else if (i >= MODULES_PER_SIDE) {
-          direction = -direction;
-          i--;
-          j -= 2;
+    if (bit < 8 * CODEWORDS + 1) {
+      do {
+        if (j % 2 == 0) {
+          if (j < 6) j++; else j--;
+        } else {
+          if (j < 6) j--; else j++;
+          i += direction;
+          if (i < 0) {
+            direction = -direction;
+            i++;
+            j -= 2;
+            if (j == 6) j--; // Skip vertical timing pattern
+          } else if (i >= MODULES_PER_SIDE) {
+            direction = -direction;
+            i--;
+            j -= 2;
+            if (j == 6) j--; // Skip vertical timing pattern
+          }
         }
       }
+      while (!is_data_pattern(i, j));
     }
-    while (!is_data_pattern(i, j));
   }
 }
