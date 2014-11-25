@@ -1,6 +1,7 @@
 #include "qr.h"
 
 #include <stdbool.h>
+#include <string.h>
 
 #define DARK 0x00
 #define LIGHT 0xff
@@ -93,6 +94,27 @@ unsigned short encode_version_info(unsigned char data_mask_pattern) {
   return version_info ^ version_info_xor;
 }
 
+void encode_data(const char *input, int count, unsigned char *data) {
+  memset(data, 0, CODEWORDS);
+  // High 4 bits: 0100 = binary mode.
+  // Low 4 bits: high 4 bits of data length.
+  data[0] = 0x80 | (count >> 12);
+  // Middle 8 bits of data length.
+  data[1] = 0xff & (count >> 4);
+  // High 4 bits: low 4 bits of data length.
+  // Low 4 bits: first 4 bits of actual data (filled in later).
+  data[2] = 0xf0 & (count << 4);
+  for (int i = 0; i < count; i++) {
+    unsigned char byte = input[i];
+    data[i + 2] |= (byte >> 4);
+    data[i + 3] |= 0xf0 & (byte << 4); // Low 4 bits of last byte left at 0000: terminator.
+  }
+  const unsigned char PAD_CODEWORDS[] = {0xec, 0x11};
+  for (int i = count + 3, j = 0; i < DATA_CODEWORDS; i++, j = 1 - j) {
+    data[i] = PAD_CODEWORDS[j];
+  }
+}
+
 void qr(const char *input, int count, unsigned char *output) {
   // Function patterns
   for (int i = 0; i < MODULES_PER_SIDE; i++) {
@@ -136,4 +158,8 @@ void qr(const char *input, int count, unsigned char *output) {
   output[(MODULES_PER_SIDE - 2) * MODULES_PER_SIDE + 8] = version_info & 0x2000 ? DARK : LIGHT;
   output[(MODULES_PER_SIDE - 1) * MODULES_PER_SIDE + 8] = version_info & 0x4000 ? DARK : LIGHT;
   output[(MODULES_PER_SIDE - 8) * MODULES_PER_SIDE + 8] = DARK;
+
+  // Data and error correction
+  unsigned char data[CODEWORDS];
+  encode_data(input, count, data);
 }
