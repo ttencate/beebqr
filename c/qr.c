@@ -311,8 +311,9 @@ void qr(const char *input, int count, unsigned char *output) {
   int i = MODULES_PER_SIDE - 1, j = MODULES_PER_SIDE - 1;
   int direction = -1;
   for (int bit = 0; bit < 8 * CODEWORDS; bit++) {
+    // TODO interleave data/error blocks correctly
     unsigned char module = data[bit / 8] & (1 << (7 - bit % 8)) ? DARK : LIGHT;
-    // unsigned char module = (unsigned char) ((bit * 0x20) % 0x100);
+    // TODO xor with the mask pattern
     output[i * MODULES_PER_SIDE + j] = module;
     if (bit < 8 * CODEWORDS + 1) {
       do {
