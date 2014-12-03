@@ -124,7 +124,7 @@ unsigned int encode_version_info() {
   return 0x28c69;
 }
 
-void encode_data(const char *input, int count, unsigned char *data) {
+void pad_data(const char *input, int count, unsigned char *data) {
   // Start with zeros to ensure ORing works
   memset(data, 0, CODEWORDS);
 
@@ -150,8 +150,104 @@ void encode_data(const char *input, int count, unsigned char *data) {
   for (int j = 0; i < DATA_CODEWORDS; i++, j = 1 - j) {
     data[i] = PAD_CODEWORDS[j];
   }
+}
 
-  // TODO add error correction codewords
+static bool inited = false;
+static unsigned char log[256];
+static unsigned char antilog[256];
+
+void init_log_tables() {
+  if (inited) {
+    return;
+  }
+  inited = true;
+
+  int power = 1;
+  int exponent = 0;
+  do {
+    log[power] = exponent;
+    antilog[exponent] = power;
+
+    power <<= 1;
+    exponent++;
+    if (power >= 256) {
+      power ^= 285;
+    }
+  } while (exponent < 256);
+}
+
+// Generator polynomial: x^30 + alpha^a[29] * x^29 + ... + alpha^a[0] * 1
+const unsigned char polynomial_30[30] = {
+  180, 192, 40, 238, 216, 251, 37, 156, 130, 224,
+  193, 226, 173, 42, 125, 222, 96, 239, 86, 110,
+  48, 50, 182, 179, 31, 216, 152, 145, 173, 41
+};
+
+void generate_error_correction(const unsigned char *data_codewords, int num_data_codewords, unsigned char *error_codewords, int num_error_codewords, const unsigned char *polynomial) {
+  init_log_tables();
+
+  memset(error_codewords, 0, num_error_codewords);
+  for (int i = 0; i < num_data_codewords + num_error_codewords; i++) {
+    // Remember the head so we can multiply the generator by it (minus its head).
+    unsigned char head = *error_codewords;
+    // Shift out the head to the left, shift in the next codeword to the right.
+    for (int j = 0; j < num_error_codewords-1; j++) {
+      error_codewords[j] = error_codewords[j+1];
+    }
+    if (i < num_data_codewords) {
+      error_codewords[num_error_codewords-1] = *data_codewords;
+      data_codewords++;
+    } else {
+      error_codewords[num_error_codewords-1] = 0;
+    }
+    // Add the generator, multiplied by the head coefficient that has been
+    // shifted out, annihiliating the implicit head term.
+    if (head) {
+      for (int j = 0; j < num_error_codewords; j++) {
+        error_codewords[j] ^= antilog[(log[head] + polynomial[num_error_codewords - j - 1]) % 255];
+      }
+    }
+  }
+}
+
+void add_error_correction(unsigned char *data) {
+  // 19 blocks of 118, then 6 blocks of 119. Each block gets 30 error
+  // correction codewords. We go from back to front, pulling data backwards to
+  // make room for error correction, then computing it in-place.
+  unsigned char *write = data + CODEWORDS - 30 - 1;
+  const unsigned char *read = data + DATA_CODEWORDS - 1;
+
+  int block_size = 119;
+  int blocks_remaining = 6;
+  int c = 0;
+  do {
+    *write = *read;
+    c++;
+    if (c == block_size) {
+      generate_error_correction(write, block_size, write + block_size, 30, polynomial_30);
+      c = 0;
+      write -= 30;
+      blocks_remaining--;
+    }
+    write--;
+    read--;
+  } while (blocks_remaining);
+
+  block_size = 118;
+  blocks_remaining = 19;
+  c = 0;
+  do {
+    *write = *read;
+    c++;
+    if (c == block_size) {
+      generate_error_correction(write, block_size, write + block_size, 30, polynomial_30);
+      c = 0;
+      write -= 30;
+      blocks_remaining--;
+    }
+    write--;
+    read--;
+  } while (blocks_remaining);
 }
 
 void qr(const char *input, int count, unsigned char *output) {
@@ -206,12 +302,14 @@ void qr(const char *input, int count, unsigned char *output) {
     output[(bit/3) * MODULES_PER_SIDE + (MODULES_PER_SIDE - 11 + bit%3)] = module;
   }
 
-  // Data and error correction
+  // Copy data
   unsigned char data[CODEWORDS];
-  encode_data(input, count, data);
+  pad_data(input, count, data);
+  add_error_correction(data);
+
+  // Write codewords into the matrix
   int i = MODULES_PER_SIDE - 1, j = MODULES_PER_SIDE - 1;
   int direction = -1;
-  fprintf(stderr, "%d\n", data[0]);
   for (int bit = 0; bit < 8 * CODEWORDS; bit++) {
     unsigned char module = data[bit / 8] & (1 << (7 - bit % 8)) ? DARK : LIGHT;
     // unsigned char module = (unsigned char) ((bit * 0x20) % 0x100);

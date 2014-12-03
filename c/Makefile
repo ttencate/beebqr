@@ -1,6 +1,8 @@
-qr: *.c *.h
-	gcc --std=c99 -Wall -Werror -oqr *.c -lpng
+qr: main.c qr.c qr.h
+	gcc --std=c99 -Wall -Werror -oqr main.c qr.c -lpng
 
-.PHONY: test
-test: qr test.txt
+test: qr_test.c qr.c qr.h
+	gcc --std=c99 -Wall -Werror -oqr_test qr_test.c && ./qr_test
+
+generate: qr test.txt
 	./qr < test.txt > test.png

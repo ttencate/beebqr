@@ -8,6 +8,7 @@
 #define MODULES_PER_SIDE 177
 #define MODULES (MODULES_PER_SIDE * MODULES_PER_SIDE)
 
+void init_log_tables();
 void qr(const char *input, int count, unsigned char *output);
 
 #endif
