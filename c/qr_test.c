@@ -27,7 +27,7 @@ void assert_equal_bytes(const unsigned char *expected, const unsigned char *actu
 int main() {
   // Example from http://www.thonky.com/qr-code-tutorial/error-correction-coding/
   const unsigned char polynomial_10[10] = {
-    45, 32, 94, 64, 70, 118, 61, 46, 67, 251
+    251, 67, 46, 61, 118, 70, 64, 94, 32, 45
   };
   const unsigned char data_codewords[16] = {
     32, 91, 11, 120, 209, 114, 220, 77, 67, 64, 236, 17, 236, 17, 236, 17

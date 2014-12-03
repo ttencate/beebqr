@@ -176,11 +176,11 @@ void init_log_tables() {
   } while (exponent < 256);
 }
 
-// Generator polynomial: x^30 + alpha^a[29] * x^29 + ... + alpha^a[0] * 1
+// Generator polynomial: x^30 + alpha^a[0] * x^29 + ... + alpha^a[29] * 1
 const unsigned char polynomial_30[30] = {
-  180, 192, 40, 238, 216, 251, 37, 156, 130, 224,
-  193, 226, 173, 42, 125, 222, 96, 239, 86, 110,
-  48, 50, 182, 179, 31, 216, 152, 145, 173, 41
+  41, 173, 145, 152, 216, 31, 179, 182, 50, 48,
+  110, 86, 239, 96, 222, 125, 42, 173, 226, 193,
+  224, 130, 156, 37, 251, 216, 238, 40, 192, 180
 };
 
 void generate_error_correction(const unsigned char *data_codewords, int num_data_codewords, unsigned char *error_codewords, int num_error_codewords, const unsigned char *polynomial) {
@@ -204,7 +204,7 @@ void generate_error_correction(const unsigned char *data_codewords, int num_data
     // shifted out, annihiliating the implicit head term.
     if (head) {
       for (int j = 0; j < num_error_codewords; j++) {
-        error_codewords[j] ^= antilog[(log[head] + polynomial[num_error_codewords - j - 1]) % 255];
+        error_codewords[j] ^= antilog[(log[head] + polynomial[j]) % 255];
       }
     }
   }
