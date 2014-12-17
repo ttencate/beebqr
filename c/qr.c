@@ -207,44 +207,19 @@ void generate_error_correction(const unsigned char *data_codewords, int num_data
   }
 }
 
-void add_error_correction(unsigned char *data) {
+void generate_error_codewords(unsigned char *data, unsigned char *error) {
   // 19 blocks of 118, then 6 blocks of 119. Each block gets 30 error
-  // correction codewords. We go from back to front, pulling data backwards to
-  // make room for error correction, then computing it in-place.
-  unsigned char *write = data + CODEWORDS - 30 - 1;
-  const unsigned char *read = data + DATA_CODEWORDS - 1;
-
-  int block_size = 119;
-  int blocks_remaining = 6;
-  int c = 0;
-  do {
-    *write = *read;
-    c++;
-    if (c == block_size) {
-      generate_error_correction(write, block_size, write + block_size, 30, polynomial_30);
-      c = 0;
-      write -= 30;
-      blocks_remaining--;
-    }
-    write--;
-    read--;
-  } while (blocks_remaining);
-
-  block_size = 118;
-  blocks_remaining = 19;
-  c = 0;
-  do {
-    *write = *read;
-    c++;
-    if (c == block_size) {
-      generate_error_correction(write, block_size, write + block_size, 30, polynomial_30);
-      c = 0;
-      write -= 30;
-      blocks_remaining--;
-    }
-    write--;
-    read--;
-  } while (blocks_remaining);
+  // correction codewords.
+  for (int i = 0; i < 19; i++) {
+    generate_error_correction(data, 118, error, 30, polynomial_30);
+    data += 118;
+    error += 30;
+  }
+  for (int i = 0; i < 6; i++) {
+    generate_error_correction(data, 119, error, 30, polynomial_30);
+    data += 119;
+    error += 30;
+  }
 }
 
 void qr(const char *input, int count, unsigned char *output) {
@@ -300,13 +275,15 @@ void qr(const char *input, int count, unsigned char *output) {
   }
 
   // Copy data and add header
-  unsigned char data[CODEWORDS];
-  memset(data, 0, CODEWORDS);
+  unsigned char data[DATA_CODEWORDS];
+  memset(data, 0, DATA_CODEWORDS);
   memcpy(data + 3, input, count); // On the Beeb, we'd read from disk here.
   generate_data_codewords(count, data, DATA_CODEWORDS);
 
   // Generate error correction codewords
-  add_error_correction(data);
+  unsigned char error[ERROR_CODEWORDS];
+  memset(error, 0, ERROR_CODEWORDS);
+  generate_error_codewords(data, error);
 
   // Write codewords into the matrix
   int i = MODULES_PER_SIDE - 1, j = MODULES_PER_SIDE - 1;
