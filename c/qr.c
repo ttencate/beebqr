@@ -227,12 +227,7 @@ void write_byte(unsigned char *output, int *pi, int *pj, int *pdirection, unsign
   int j = *pj;
   int direction = *pdirection;
   for (unsigned char mask = 0x80; mask; mask >>= 1) {
-    unsigned char module = byte & mask ? DARK : LIGHT;
-    // TODO apply xor mask
-    output[i * MODULES_PER_SIDE + j] = module;
-
     // Advance writing position
-    // TODO avoid going out of bounds at the last one (initialize at "-1" and advance first)
     do {
       if (j % 2 == 0) {
         if (j < 6) j++; else j--;
@@ -253,6 +248,12 @@ void write_byte(unsigned char *output, int *pi, int *pj, int *pdirection, unsign
       }
     }
     while (!is_data_pattern(i, j));
+
+    bool bit = (byte & mask);
+    if ((i + j) % 2 == 0) {
+      bit = !bit;
+    }
+    output[i * MODULES_PER_SIDE + j] = bit ? DARK : LIGHT;
   }
   *pi = i;
   *pj = j;
@@ -323,8 +324,8 @@ void qr(const char *input, int count, unsigned char *output) {
   generate_error_codewords(data, error);
 
   // Write codewords into the matrix
-  int i = MODULES_PER_SIDE - 1, j = MODULES_PER_SIDE - 1;
-  int direction = -1;
+  int i = MODULES_PER_SIDE - 1, j = MODULES_PER_SIDE;
+  int direction = 1;
   // 19 blocks of 118, then 6 blocks of 119
   for (int byte_in_block = 0; byte_in_block < 119; byte_in_block++) {
     if (byte_in_block < 118) {
