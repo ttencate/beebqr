@@ -124,32 +124,29 @@ unsigned int encode_version_info() {
   return 0x28c69;
 }
 
-void pad_data(const char *input, int count, unsigned char *data) {
-  // Start with zeros to ensure ORing works
-  memset(data, 0, CODEWORDS);
-
-  // Copy data nibbles
-  int i = 0;
-  // High 4 bits: 0100 = binary mode.
-  // Low 4 bits: high 4 bits of data length.
-  data[i++] = 0x40 | (count >> 12);
-  // Middle 8 bits of data length.
-  data[i++] = 0xff & (count >> 4);
-  // High 4 bits: low 4 bits of data length.
-  // Low 4 bits: first 4 bits of actual data (filled in later).
-  data[i] = 0xf0 & (count << 4);
-  for (; i < count;) {
-    unsigned char byte = input[i];
-    data[i++] |= (byte >> 4);
-    data[i] |= 0xf0 & (byte << 4);
+void generate_data_codewords(int count, unsigned char *data, int data_size) {
+  // Actual data bytes have been placed in data[3] onwards.
+  int i = 2;
+  for (; i < count + 2; i++) {
+    data[i] = (data[i] << 4) | (data[i+1] >> 4);
   }
+  data[i] = data[i] << 4;
   i++; // Low 4 bits of last byte left at 0000: terminator.
 
   // Add padding to fill up data area
   const unsigned char PAD_CODEWORDS[] = {0xec, 0x11};
-  for (int j = 0; i < DATA_CODEWORDS; i++, j = 1 - j) {
+  for (int j = 0; i < data_size; i++, j = 1 - j) {
     data[i] = PAD_CODEWORDS[j];
   }
+
+  // High 4 bits: 0100 = binary mode.
+  // Low 4 bits: high 4 bits of data length.
+  data[0] = 0x40 | (count >> 12);
+  // Middle 8 bits of data length.
+  data[1] = 0xff & (count >> 4);
+  // High 4 bits: low 4 bits of data length.
+  // Low 4 bits: first 4 bits of actual data (filled in later).
+  data[2] |= 0xf0 & (count << 4);
 }
 
 static bool inited = false;
@@ -302,9 +299,13 @@ void qr(const char *input, int count, unsigned char *output) {
     output[(bit/3) * MODULES_PER_SIDE + (MODULES_PER_SIDE - 11 + bit%3)] = module;
   }
 
-  // Copy data
+  // Copy data and add header
   unsigned char data[CODEWORDS];
-  pad_data(input, count, data);
+  memset(data, 0, CODEWORDS);
+  memcpy(data + 3, input, count); // On the Beeb, we'd read from disk here.
+  generate_data_codewords(count, data, DATA_CODEWORDS);
+
+  // Generate error correction codewords
   add_error_correction(data);
 
   // Write codewords into the matrix
