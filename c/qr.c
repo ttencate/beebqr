@@ -222,6 +222,43 @@ void generate_error_codewords(unsigned char *data, unsigned char *error) {
   }
 }
 
+void write_byte(unsigned char *output, int *pi, int *pj, int *pdirection, unsigned char byte) {
+  int i = *pi;
+  int j = *pj;
+  int direction = *pdirection;
+  for (unsigned char mask = 0x80; mask; mask >>= 1) {
+    unsigned char module = byte & mask ? DARK : LIGHT;
+    // TODO apply xor mask
+    output[i * MODULES_PER_SIDE + j] = module;
+
+    // Advance writing position
+    // TODO avoid going out of bounds at the last one (initialize at "-1" and advance first)
+    do {
+      if (j % 2 == 0) {
+        if (j < 6) j++; else j--;
+      } else {
+        if (j < 6) j--; else j++;
+        i += direction;
+        if (i < 0) {
+          direction = -direction;
+          i++;
+          j -= 2;
+          if (j == 6) j--; // Skip vertical timing pattern
+        } else if (i >= MODULES_PER_SIDE) {
+          direction = -direction;
+          i--;
+          j -= 2;
+          if (j == 6) j--; // Skip vertical timing pattern
+        }
+      }
+    }
+    while (!is_data_pattern(i, j));
+  }
+  *pi = i;
+  *pj = j;
+  *pdirection = direction;
+}
+
 void qr(const char *input, int count, unsigned char *output) {
   // Function patterns
   for (int i = 0; i < MODULES_PER_SIDE; i++) {
@@ -288,32 +325,20 @@ void qr(const char *input, int count, unsigned char *output) {
   // Write codewords into the matrix
   int i = MODULES_PER_SIDE - 1, j = MODULES_PER_SIDE - 1;
   int direction = -1;
-  for (int bit = 0; bit < 8 * CODEWORDS; bit++) {
-    // TODO interleave data/error blocks correctly
-    unsigned char module = data[bit / 8] & (1 << (7 - bit % 8)) ? DARK : LIGHT;
-    // TODO xor with the mask pattern
-    output[i * MODULES_PER_SIDE + j] = module;
-    if (bit < 8 * CODEWORDS + 1) {
-      do {
-        if (j % 2 == 0) {
-          if (j < 6) j++; else j--;
-        } else {
-          if (j < 6) j--; else j++;
-          i += direction;
-          if (i < 0) {
-            direction = -direction;
-            i++;
-            j -= 2;
-            if (j == 6) j--; // Skip vertical timing pattern
-          } else if (i >= MODULES_PER_SIDE) {
-            direction = -direction;
-            i--;
-            j -= 2;
-            if (j == 6) j--; // Skip vertical timing pattern
-          }
-        }
+  // 19 blocks of 118, then 6 blocks of 119
+  for (int byte_in_block = 0; byte_in_block < 119; byte_in_block++) {
+    if (byte_in_block < 118) {
+      for (int block = 0; block < 19; block++) {
+        write_byte(output, &i, &j, &direction, data[118 * block + byte_in_block]);
       }
-      while (!is_data_pattern(i, j));
+    }
+    for (int block = 0; block < 6; block++) {
+      write_byte(output, &i, &j, &direction, data[118 * 19 + 119 * block + byte_in_block]);
+    }
+  }
+  for (int byte_in_block = 0; byte_in_block < 30; byte_in_block++) {
+    for (int block = 0; block < 25; block++) {
+      write_byte(output, &i, &j, &direction, error[30 * block + byte_in_block]);
     }
   }
 }
