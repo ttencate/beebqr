@@ -234,14 +234,9 @@ void write_byte(unsigned char *output, int *pi, int *pj, int *pdirection, unsign
       } else {
         if (j < 6) j--; else j++;
         i += direction;
-        if (i < 0) {
+        if (i == -1 || i == MODULES_PER_SIDE) {
           direction = -direction;
-          i++;
-          j -= 2;
-          if (j == 6) j--; // Skip vertical timing pattern
-        } else if (i >= MODULES_PER_SIDE) {
-          direction = -direction;
-          i--;
+          i += direction;
           j -= 2;
           if (j == 6) j--; // Skip vertical timing pattern
         }
