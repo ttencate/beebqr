@@ -222,23 +222,25 @@ void generate_error_codewords(unsigned char *data, unsigned char *error) {
   }
 }
 
-void write_byte(unsigned char *output, int *pi, int *pj, int *pdirection, unsigned char byte) {
+void write_byte(unsigned char *output, int *pi, int *pj, int *pidir, int *pjdir, unsigned char byte) {
   int i = *pi;
   int j = *pj;
-  int direction = *pdirection;
+  int idir = *pidir;
+  int jdir = *pjdir;
   for (unsigned char mask = 0x80; mask; mask >>= 1) {
     // Advance writing position
     do {
-      if (j % 2 == 0) {
-        if (j < 6) j++; else j--;
-      } else {
-        if (j < 6) j--; else j++;
-        i += direction;
+      j += jdir;
+      jdir = -jdir;
+      if (jdir == -1) {
+        i += idir;
         if (i == -1 || i == MODULES_PER_SIDE) {
-          direction = -direction;
-          i += direction;
+          idir = -idir;
+          i += idir;
           j -= 2;
-          if (j == 6) j--; // Skip vertical timing pattern
+          if (j == 6) {
+            j--; // Skip vertical timing pattern
+          }
         }
       }
     }
@@ -252,7 +254,8 @@ void write_byte(unsigned char *output, int *pi, int *pj, int *pdirection, unsign
   }
   *pi = i;
   *pj = j;
-  *pdirection = direction;
+  *pidir = idir;
+  *pjdir = jdir;
 }
 
 void qr(const char *input, int count, unsigned char *output) {
@@ -320,21 +323,22 @@ void qr(const char *input, int count, unsigned char *output) {
 
   // Write codewords into the matrix
   int i = MODULES_PER_SIDE - 1, j = MODULES_PER_SIDE;
-  int direction = 1;
+  int idir = 1;
+  int jdir = 1;
   // 19 blocks of 118, then 6 blocks of 119
   for (int byte_in_block = 0; byte_in_block < 119; byte_in_block++) {
     if (byte_in_block < 118) {
       for (int block = 0; block < 19; block++) {
-        write_byte(output, &i, &j, &direction, data[118 * block + byte_in_block]);
+        write_byte(output, &i, &j, &idir, &jdir, data[118 * block + byte_in_block]);
       }
     }
     for (int block = 0; block < 6; block++) {
-      write_byte(output, &i, &j, &direction, data[118 * 19 + 119 * block + byte_in_block]);
+      write_byte(output, &i, &j, &idir, &jdir, data[118 * 19 + 119 * block + byte_in_block]);
     }
   }
   for (int byte_in_block = 0; byte_in_block < 30; byte_in_block++) {
     for (int block = 0; block < 25; block++) {
-      write_byte(output, &i, &j, &direction, error[30 * block + byte_in_block]);
+      write_byte(output, &i, &j, &idir, &jdir, error[30 * block + byte_in_block]);
     }
   }
 }
