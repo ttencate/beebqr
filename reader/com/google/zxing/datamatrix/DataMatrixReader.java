@@ -104,7 +104,7 @@ public final class DataMatrixReader implements Reader {
     int[] leftTopBlack = image.getTopLeftOnBit();
     int[] rightBottomBlack = image.getBottomRightOnBit();
     if (leftTopBlack == null || rightBottomBlack == null) {
-      throw NotFoundException.getNotFoundInstance();
+      throw new NotFoundException();
     }
 
     int moduleSize = moduleSize(leftTopBlack, image);
@@ -117,7 +117,7 @@ public final class DataMatrixReader implements Reader {
     int matrixWidth = (right - left + 1) / moduleSize;
     int matrixHeight = (bottom - top + 1) / moduleSize;
     if (matrixWidth <= 0 || matrixHeight <= 0) {
-      throw NotFoundException.getNotFoundInstance();
+      throw new NotFoundException();
     }
 
     // Push in the "border" by half the module width so that we start
@@ -148,12 +148,12 @@ public final class DataMatrixReader implements Reader {
       x++;
     }
     if (x == width) {
-      throw NotFoundException.getNotFoundInstance();
+      throw new NotFoundException();
     }
 
     int moduleSize = x - leftTopBlack[0];
     if (moduleSize == 0) {
-      throw NotFoundException.getNotFoundInstance();
+      throw new NotFoundException();
     }
     return moduleSize;
   }

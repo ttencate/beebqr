@@ -198,7 +198,7 @@ final class FieldParser {
     // Processing 2-digit AIs
 
     if(rawInformation.length() < 2) {
-      throw NotFoundException.getNotFoundInstance();
+      throw new NotFoundException();
     }
 
     String firstTwoDigits = rawInformation.substring(0, 2);
@@ -213,7 +213,7 @@ final class FieldParser {
     }
 
     if(rawInformation.length() < 3) {
-      throw NotFoundException.getNotFoundInstance();
+      throw new NotFoundException();
     }
 
     String firstThreeDigits = rawInformation.substring(0, 3);
@@ -238,7 +238,7 @@ final class FieldParser {
     }
 
     if(rawInformation.length() < 4) {
-      throw NotFoundException.getNotFoundInstance();
+      throw new NotFoundException();
     }
 
     String firstFourDigits = rawInformation.substring(0, 4);
@@ -252,18 +252,18 @@ final class FieldParser {
       }
     }
 
-    throw NotFoundException.getNotFoundInstance();
+    throw new NotFoundException();
   }
 
   private static String processFixedAI(int aiSize, int fieldSize, String rawInformation) throws NotFoundException{
     if (rawInformation.length() < aiSize) {
-      throw NotFoundException.getNotFoundInstance();
+      throw new NotFoundException();
     }
 
     String ai = rawInformation.substring(0, aiSize);
 
     if(rawInformation.length() < aiSize + fieldSize) {
-      throw NotFoundException.getNotFoundInstance();
+      throw new NotFoundException();
     }
 
     String field = rawInformation.substring(aiSize, aiSize + fieldSize);

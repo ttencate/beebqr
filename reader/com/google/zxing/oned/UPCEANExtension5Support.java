@@ -89,12 +89,12 @@ final class UPCEANExtension5Support {
     }
 
     if (resultString.length() != 5) {
-      throw NotFoundException.getNotFoundInstance();
+      throw new NotFoundException();
     }
 
     int checkDigit = determineCheckDigit(lgPatternFound);
     if (extensionChecksum(resultString.toString()) != checkDigit) {
-      throw NotFoundException.getNotFoundInstance();
+      throw new NotFoundException();
     }
     
     return rowOffset;
@@ -121,7 +121,7 @@ final class UPCEANExtension5Support {
         return d;
       }
     }
-    throw NotFoundException.getNotFoundInstance();
+    throw new NotFoundException();
   }
 
   /**

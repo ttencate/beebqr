@@ -1,2 +1,2 @@
 #!/bin/bash
-javac Reader.java && java Reader $*
+javac Reader.java && java -XX:-OmitStackTraceInFastThrow Reader $*

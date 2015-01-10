@@ -590,7 +590,7 @@ public class FinderPatternFinder {
     int startSize = possibleCenters.size();
     if (startSize < 3) {
       // Couldn't find enough finder patterns
-      throw NotFoundException.getNotFoundInstance();
+      throw new NotFoundException();
     }
 
     // Filter outlier possibilities whose module size is too different

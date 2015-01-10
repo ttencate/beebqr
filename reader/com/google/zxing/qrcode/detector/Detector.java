@@ -92,7 +92,7 @@ public class Detector {
 
     float moduleSize = calculateModuleSize(topLeft, topRight, bottomLeft);
     if (moduleSize < 1.0f) {
-      throw NotFoundException.getNotFoundInstance();
+      throw new NotFoundException();
     }
     int dimension = computeDimension(topLeft, topRight, bottomLeft, moduleSize);
     Version provisionalVersion = Version.getProvisionalVersionForDimension(dimension);
@@ -211,7 +211,7 @@ public class Detector {
         dimension--;
         break;
       case 3:
-        throw NotFoundException.getNotFoundInstance();
+        throw new NotFoundException();
     }
     return dimension;
   }
@@ -381,13 +381,13 @@ public class Detector {
     int alignmentAreaLeftX = Math.max(0, estAlignmentX - allowance);
     int alignmentAreaRightX = Math.min(image.getWidth() - 1, estAlignmentX + allowance);
     if (alignmentAreaRightX - alignmentAreaLeftX < overallEstModuleSize * 3) {
-      throw NotFoundException.getNotFoundInstance();
+      throw new NotFoundException();
     }
 
     int alignmentAreaTopY = Math.max(0, estAlignmentY - allowance);
     int alignmentAreaBottomY = Math.min(image.getHeight() - 1, estAlignmentY + allowance);
     if (alignmentAreaBottomY - alignmentAreaTopY < overallEstModuleSize * 3) {
-      throw NotFoundException.getNotFoundInstance();
+      throw new NotFoundException();
     }
 
     AlignmentPatternFinder alignmentFinder =

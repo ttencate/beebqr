@@ -52,7 +52,7 @@ public final class MultiDetector extends Detector {
     FinderPatternInfo[] infos = finder.findMulti(hints);
 
     if (infos.length == 0) {
-      throw NotFoundException.getNotFoundInstance();
+      throw new NotFoundException();
     }
 
     List<DetectorResult> result = new ArrayList<>();

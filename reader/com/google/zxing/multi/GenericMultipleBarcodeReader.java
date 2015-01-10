@@ -64,7 +64,7 @@ public final class GenericMultipleBarcodeReader implements MultipleBarcodeReader
     List<Result> results = new ArrayList<>();
     doDecodeMultiple(image, hints, results, 0, 0, 0);
     if (results.isEmpty()) {
-      throw NotFoundException.getNotFoundInstance();
+      throw new NotFoundException();
     }
     return results.toArray(new Result[results.size()]);
   }

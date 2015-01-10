@@ -120,7 +120,7 @@ public class QRCodeReader implements Reader {
     int[] leftTopBlack = image.getTopLeftOnBit();
     int[] rightBottomBlack = image.getBottomRightOnBit();
     if (leftTopBlack == null || rightBottomBlack == null) {
-      throw NotFoundException.getNotFoundInstance();
+      throw new NotFoundException();
     }
 
     float moduleSize = moduleSize(leftTopBlack, image);
@@ -132,7 +132,7 @@ public class QRCodeReader implements Reader {
     
     // Sanity check!
     if (left >= right || top >= bottom) {
-      throw NotFoundException.getNotFoundInstance();
+      throw new NotFoundException();
     }
 
     if (bottom - top != right - left) {
@@ -144,11 +144,11 @@ public class QRCodeReader implements Reader {
     int matrixWidth = Math.round((right - left + 1) / moduleSize);
     int matrixHeight = Math.round((bottom - top + 1) / moduleSize);
     if (matrixWidth <= 0 || matrixHeight <= 0) {
-      throw NotFoundException.getNotFoundInstance();
+      throw new NotFoundException();
     }
     if (matrixHeight != matrixWidth) {
       // Only possibly decode square regions
-      throw NotFoundException.getNotFoundInstance();
+      throw new NotFoundException();
     }
 
     // Push in the "border" by half the module width so that we start
@@ -165,7 +165,7 @@ public class QRCodeReader implements Reader {
     if (nudgedTooFarRight > 0) {
       if (nudgedTooFarRight > nudge) {
         // Neither way fits; abort
-        throw NotFoundException.getNotFoundInstance();
+        throw new NotFoundException();
       }
       left -= nudgedTooFarRight;
     }
@@ -174,7 +174,7 @@ public class QRCodeReader implements Reader {
     if (nudgedTooFarDown > 0) {
       if (nudgedTooFarDown > nudge) {
         // Neither way fits; abort
-        throw NotFoundException.getNotFoundInstance();
+        throw new NotFoundException();
       }
       top -= nudgedTooFarDown;
     }
@@ -210,7 +210,7 @@ public class QRCodeReader implements Reader {
       y++;
     }
     if (x == width || y == height) {
-      throw NotFoundException.getNotFoundInstance();
+      throw new NotFoundException();
     }
     return (x - leftTopBlack[0]) / 7.0f;
   }

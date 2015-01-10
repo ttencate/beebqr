@@ -171,7 +171,7 @@ public abstract class OneDReader implements Reader {
       }
     }
 
-    throw NotFoundException.getNotFoundInstance();
+    throw new NotFoundException();
   }
 
   /**
@@ -194,7 +194,7 @@ public abstract class OneDReader implements Reader {
     Arrays.fill(counters, 0, numCounters, 0);
     int end = row.getSize();
     if (start >= end) {
-      throw NotFoundException.getNotFoundInstance();
+      throw new NotFoundException();
     }
     boolean isWhite = !row.get(start);
     int counterPosition = 0;
@@ -216,7 +216,7 @@ public abstract class OneDReader implements Reader {
     // If we read fully the last section of pixels and filled up our counters -- or filled
     // the last counter but ran off the side of the image, OK. Otherwise, a problem.
     if (!(counterPosition == numCounters || (counterPosition == numCounters - 1 && i == end))) {
-      throw NotFoundException.getNotFoundInstance();
+      throw new NotFoundException();
     }
   }
 
@@ -232,7 +232,7 @@ public abstract class OneDReader implements Reader {
       }
     }
     if (numTransitionsLeft >= 0) {
-      throw NotFoundException.getNotFoundInstance();
+      throw new NotFoundException();
     }
     recordPattern(row, start + 1, counters);
   }

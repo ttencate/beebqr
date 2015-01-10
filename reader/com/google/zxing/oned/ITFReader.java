@@ -225,7 +225,7 @@ public final class ITFReader extends OneDReader {
     }
     if (quietCount != 0) {
       // Unable to find the necessary number of quiet zone pixels.
-      throw NotFoundException.getNotFoundInstance();
+      throw new NotFoundException();
     }
   }
 
@@ -240,7 +240,7 @@ public final class ITFReader extends OneDReader {
     int width = row.getSize();
     int endStart = row.getNextSet(0);
     if (endStart == width) {
-      throw NotFoundException.getNotFoundInstance();
+      throw new NotFoundException();
     }
 
     return endStart;
@@ -324,7 +324,7 @@ public final class ITFReader extends OneDReader {
         isWhite = !isWhite;
       }
     }
-    throw NotFoundException.getNotFoundInstance();
+    throw new NotFoundException();
   }
 
   /**
@@ -350,7 +350,7 @@ public final class ITFReader extends OneDReader {
     if (bestMatch >= 0) {
       return bestMatch;
     } else {
-      throw NotFoundException.getNotFoundInstance();
+      throw new NotFoundException();
     }
   }
 

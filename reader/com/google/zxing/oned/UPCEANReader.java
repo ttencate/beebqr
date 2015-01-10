@@ -181,7 +181,7 @@ public abstract class UPCEANReader extends OneDReader {
     int end = endRange[1];
     int quietEnd = end + (end - endRange[0]);
     if (quietEnd >= row.getSize() || !row.isRange(end, quietEnd, false)) {
-      throw NotFoundException.getNotFoundInstance();
+      throw new NotFoundException();
     }
 
     String resultString = result.toString();
@@ -226,7 +226,7 @@ public abstract class UPCEANReader extends OneDReader {
         }
       }
       if (!valid) {
-        throw NotFoundException.getNotFoundInstance();
+        throw new NotFoundException();
       }
     }
 
@@ -335,7 +335,7 @@ public abstract class UPCEANReader extends OneDReader {
         isWhite = !isWhite;
       }
     }
-    throw NotFoundException.getNotFoundInstance();
+    throw new NotFoundException();
   }
 
   /**
@@ -367,7 +367,7 @@ public abstract class UPCEANReader extends OneDReader {
     if (bestMatch >= 0) {
       return bestMatch;
     } else {
-      throw NotFoundException.getNotFoundInstance();
+      throw new NotFoundException();
     }
   }
 

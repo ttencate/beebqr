@@ -150,7 +150,7 @@ final class AlignmentPatternFinder {
       return possibleCenters.get(0);
     }
 
-    throw NotFoundException.getNotFoundInstance();
+    throw new NotFoundException();
   }
 
   /**

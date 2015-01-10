@@ -115,7 +115,7 @@ public final class Code39Reader extends OneDReader {
       recordPattern(row, nextStart, theCounters);
       int pattern = toNarrowWidePattern(theCounters);
       if (pattern < 0) {
-        throw NotFoundException.getNotFoundInstance();
+        throw new NotFoundException();
       }
       decodedChar = patternToChar(pattern);
       result.append(decodedChar);
@@ -137,7 +137,7 @@ public final class Code39Reader extends OneDReader {
     // If 50% of last pattern size, following last pattern, is not whitespace, fail
     // (but if it's whitespace to the very end of the image, that's OK)
     if (nextStart != end && (whiteSpaceAfterEnd * 2) < lastPatternSize) {
-      throw NotFoundException.getNotFoundInstance();
+      throw new NotFoundException();
     }
 
     if (usingCheckDigit) {
@@ -154,7 +154,7 @@ public final class Code39Reader extends OneDReader {
 
     if (result.length() == 0) {
       // false positive
-      throw NotFoundException.getNotFoundInstance();
+      throw new NotFoundException();
     }
 
     String resultString;
@@ -207,7 +207,7 @@ public final class Code39Reader extends OneDReader {
         isWhite = !isWhite;
       }
     }
-    throw NotFoundException.getNotFoundInstance();
+    throw new NotFoundException();
   }
 
   // For efficiency, returns -1 on failure. Not throwing here saved as many as 700 exceptions
@@ -261,7 +261,7 @@ public final class Code39Reader extends OneDReader {
         return ALPHABET[i];
       }
     }
-    throw NotFoundException.getNotFoundInstance();
+    throw new NotFoundException();
   }
 
   private static String decodeExtended(CharSequence encoded) throws FormatException {

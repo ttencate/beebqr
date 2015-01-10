@@ -132,7 +132,7 @@ public final class EAN13Reader extends UPCEANReader {
         return;
       }
     }
-    throw NotFoundException.getNotFoundInstance();
+    throw new NotFoundException();
   }
 
 }

@@ -75,7 +75,7 @@ public abstract class AbstractRSSReader extends OneDReader {
         return value;
       }
     }
-    throw NotFoundException.getNotFoundInstance();
+    throw new NotFoundException();
   }
 
   protected static int count(int[] array) {

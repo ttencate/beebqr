@@ -70,7 +70,7 @@ public final class MaxiCodeReader implements Reader {
       BitMatrix bits = extractPureBits(image.getBlackMatrix());
       decoderResult = decoder.decode(bits, hints);
     } else {
-      throw NotFoundException.getNotFoundInstance();
+      throw new NotFoundException();
     }
 
     ResultPoint[] points = NO_POINTS;
@@ -101,7 +101,7 @@ public final class MaxiCodeReader implements Reader {
     
     int[] enclosingRectangle = image.getEnclosingRectangle();
     if (enclosingRectangle == null) {
-      throw NotFoundException.getNotFoundInstance();
+      throw new NotFoundException();
     }
     
     int left = enclosingRectangle[0];

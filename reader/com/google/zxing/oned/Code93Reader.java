@@ -82,7 +82,7 @@ public final class Code93Reader extends OneDReader {
       recordPattern(row, nextStart, theCounters);
       int pattern = toPattern(theCounters);
       if (pattern < 0) {
-        throw NotFoundException.getNotFoundInstance();
+        throw new NotFoundException();
       }
       decodedChar = patternToChar(pattern);
       result.append(decodedChar);
@@ -102,12 +102,12 @@ public final class Code93Reader extends OneDReader {
 
     // Should be at least one more black module
     if (nextStart == end || !row.get(nextStart)) {
-      throw NotFoundException.getNotFoundInstance();
+      throw new NotFoundException();
     }
 
     if (result.length() < 2) {
       // false positive -- need at least 2 checksum digits
-      throw NotFoundException.getNotFoundInstance();
+      throw new NotFoundException();
     }
 
     checkChecksums(result);
@@ -159,7 +159,7 @@ public final class Code93Reader extends OneDReader {
         isWhite = !isWhite;
       }
     }
-    throw NotFoundException.getNotFoundInstance();
+    throw new NotFoundException();
   }
 
   private static int toPattern(int[] counters) {
@@ -191,7 +191,7 @@ public final class Code93Reader extends OneDReader {
         return ALPHABET[i];
       }
     }
-    throw NotFoundException.getNotFoundInstance();
+    throw new NotFoundException();
   }
 
   private static String decodeExtended(CharSequence encoded) throws FormatException {

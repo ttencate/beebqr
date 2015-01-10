@@ -70,7 +70,7 @@ public final class PDF417ScanningDecoder {
       }
       detectionResult = merge(leftRowIndicatorColumn, rightRowIndicatorColumn);
       if (detectionResult == null) {
-        throw NotFoundException.getNotFoundInstance();
+        throw new NotFoundException();
       }
       if (i == 0 && detectionResult.getBoundingBox() != null &&
           (detectionResult.getBoundingBox().getMinY() < boundingBox.getMinY() || detectionResult.getBoundingBox()
@@ -238,7 +238,7 @@ public final class PDF417ScanningDecoder {
         getNumberOfECCodeWords(detectionResult.getBarcodeECLevel());
     if (numberOfCodewords.length == 0) {
       if (calculatedNumberOfCodewords < 1 || calculatedNumberOfCodewords > PDF417Common.MAX_CODEWORDS_IN_BARCODE) {
-        throw NotFoundException.getNotFoundInstance();
+        throw new NotFoundException();
       }
       barcodeMatrix[0][1].setValue(calculatedNumberOfCodewords);
     } else if (numberOfCodewords[0] != calculatedNumberOfCodewords) {

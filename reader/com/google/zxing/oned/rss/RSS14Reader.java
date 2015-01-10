@@ -86,7 +86,7 @@ public final class RSS14Reader extends AbstractRSSReader {
         }
       }
     }
-    throw NotFoundException.getNotFoundInstance();
+    throw new NotFoundException();
   }
 
   private static void addOrTally(Collection<Pair> possiblePairs, Pair pair) {
@@ -258,7 +258,7 @@ public final class RSS14Reader extends AbstractRSSReader {
 
     if (outsideChar) {
       if ((oddSum & 0x01) != 0 || oddSum > 12 || oddSum < 4) {
-        throw NotFoundException.getNotFoundInstance();
+        throw new NotFoundException();
       }
       int group = (12 - oddSum) / 2;
       int oddWidest = OUTSIDE_ODD_WIDEST[group];
@@ -270,7 +270,7 @@ public final class RSS14Reader extends AbstractRSSReader {
       return new DataCharacter(vOdd * tEven + vEven + gSum, checksumPortion);
     } else {
       if ((evenSum & 0x01) != 0 || evenSum > 10 || evenSum < 4) {
-        throw NotFoundException.getNotFoundInstance();
+        throw new NotFoundException();
       }
       int group = (10 - evenSum) / 2;
       int oddWidest = INSIDE_ODD_WIDEST[group];
@@ -327,7 +327,7 @@ public final class RSS14Reader extends AbstractRSSReader {
         isWhite = !isWhite;
       }
     }
-    throw NotFoundException.getNotFoundInstance();
+    throw new NotFoundException();
 
   }
 
@@ -409,31 +409,31 @@ public final class RSS14Reader extends AbstractRSSReader {
     } else */if (mismatch == 1) {
       if (oddParityBad) {
         if (evenParityBad) {
-          throw NotFoundException.getNotFoundInstance();
+          throw new NotFoundException();
         }
         decrementOdd = true;
       } else {
         if (!evenParityBad) {
-          throw NotFoundException.getNotFoundInstance();
+          throw new NotFoundException();
         }
         decrementEven = true;
       }
     } else if (mismatch == -1) {
       if (oddParityBad) {
         if (evenParityBad) {
-          throw NotFoundException.getNotFoundInstance();
+          throw new NotFoundException();
         }
         incrementOdd = true;
       } else {
         if (!evenParityBad) {
-          throw NotFoundException.getNotFoundInstance();
+          throw new NotFoundException();
         }
         incrementEven = true;
       }
     } else if (mismatch == 0) {
       if (oddParityBad) {
         if (!evenParityBad) {
-          throw NotFoundException.getNotFoundInstance();
+          throw new NotFoundException();
         }
         // Both bad
         if (oddSum < evenSum) {
@@ -445,17 +445,17 @@ public final class RSS14Reader extends AbstractRSSReader {
         }
       } else {
         if (evenParityBad) {
-          throw NotFoundException.getNotFoundInstance();
+          throw new NotFoundException();
         }
         // Nothing to do!
       }
     } else {
-      throw NotFoundException.getNotFoundInstance();
+      throw new NotFoundException();
     }
 
     if (incrementOdd) {
       if (decrementOdd) {
-        throw NotFoundException.getNotFoundInstance();
+        throw new NotFoundException();
       }
       increment(getOddCounts(), getOddRoundingErrors());
     }
@@ -464,7 +464,7 @@ public final class RSS14Reader extends AbstractRSSReader {
     }
     if (incrementEven) {
       if (decrementEven) {
-        throw NotFoundException.getNotFoundInstance();
+        throw new NotFoundException();
       }
       increment(getEvenCounts(), getOddRoundingErrors());
     }

@@ -208,7 +208,7 @@ public final class Code128Reader extends OneDReader {
         isWhite = !isWhite;
       }
     }
-    throw NotFoundException.getNotFoundInstance();
+    throw new NotFoundException();
   }
 
   private static int decodeCode(BitArray row, int[] counters, int rowOffset)
@@ -228,7 +228,7 @@ public final class Code128Reader extends OneDReader {
     if (bestMatch >= 0) {
       return bestMatch;
     } else {
-      throw NotFoundException.getNotFoundInstance();
+      throw new NotFoundException();
     }
   }
 
@@ -490,7 +490,7 @@ public final class Code128Reader extends OneDReader {
     if (!row.isRange(nextStart,
                      Math.min(row.getSize(), nextStart + (nextStart - lastStart) / 2),
                      false)) {
-      throw NotFoundException.getNotFoundInstance();
+      throw new NotFoundException();
     }
 
     // Pull out from sum the value of the penultimate check code
@@ -504,7 +504,7 @@ public final class Code128Reader extends OneDReader {
     int resultLength = result.length();
     if (resultLength == 0) {
       // false positive
-      throw NotFoundException.getNotFoundInstance();
+      throw new NotFoundException();
     }
 
     // Only bother if the result had at least one character, and if the checksum digit happened to

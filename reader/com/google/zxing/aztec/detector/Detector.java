@@ -99,7 +99,7 @@ public final class Detector {
   private void extractParameters(ResultPoint[] bullsEyeCorners) throws NotFoundException {
     if (!isValid(bullsEyeCorners[0]) || !isValid(bullsEyeCorners[1]) ||
         !isValid(bullsEyeCorners[2]) || !isValid(bullsEyeCorners[3])) {
-      throw NotFoundException.getNotFoundInstance();
+      throw new NotFoundException();
     }
     int length = 2 * nbCenterLayers;
     // Get the bits around the bull's eye
@@ -181,7 +181,7 @@ public final class Detector {
         return shift;
       }
     }
-    throw NotFoundException.getNotFoundInstance();
+    throw new NotFoundException();
   }
 
   /**
@@ -213,7 +213,7 @@ public final class Detector {
       ReedSolomonDecoder rsDecoder = new ReedSolomonDecoder(GenericGF.AZTEC_PARAM);
       rsDecoder.decode(parameterWords, numECCodewords);
     } catch (ReedSolomonException ignored) {
-      throw NotFoundException.getNotFoundInstance();
+      throw new NotFoundException();
     }
     // Toss the error correction.  Just return the data as an integer
     int result = 0;
@@ -267,7 +267,7 @@ public final class Detector {
     }
 
     if (nbCenterLayers != 5 && nbCenterLayers != 7) {
-      throw NotFoundException.getNotFoundInstance();
+      throw new NotFoundException();
     }
     
     compact = nbCenterLayers == 5;

@@ -120,7 +120,7 @@ public final class MonochromeRectangleDetector {
       }
       if (range == null) {
         if (lastRange == null) {
-          throw NotFoundException.getNotFoundInstance();
+          throw new NotFoundException();
         }
         // lastRange was found
         if (deltaX == 0) {
@@ -148,7 +148,7 @@ public final class MonochromeRectangleDetector {
       }
       lastRange = range;
     }
-    throw NotFoundException.getNotFoundInstance();
+    throw new NotFoundException();
   }
 
   /**

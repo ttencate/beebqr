@@ -44,7 +44,7 @@ final class BoundingBox {
         (bottomLeft == null && bottomRight == null) ||
         (topLeft != null && bottomLeft == null) ||
         (topRight != null && bottomRight == null)) {
-      throw NotFoundException.getNotFoundInstance();
+      throw new NotFoundException();
     }
     init(image, topLeft, bottomLeft, topRight, bottomRight);
   }

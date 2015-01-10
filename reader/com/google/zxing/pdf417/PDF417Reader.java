@@ -60,7 +60,7 @@ public final class PDF417Reader implements Reader, MultipleBarcodeReader {
       ChecksumException {
     Result[] result = decode(image, hints, false);
     if (result == null || result.length == 0 || result[0] == null) {
-      throw NotFoundException.getNotFoundInstance();
+      throw new NotFoundException();
     }
     return result[0];
   }
@@ -75,7 +75,7 @@ public final class PDF417Reader implements Reader, MultipleBarcodeReader {
     try {
       return decode(image, hints, true);
     } catch (FormatException | ChecksumException ignored) {
-      throw NotFoundException.getNotFoundInstance();
+      throw new NotFoundException();
     }
   }
 

@@ -109,7 +109,7 @@ final class MultiFinderPatternFinder extends FinderPatternFinder {
 
     if (size < 3) {
       // Couldn't find enough finder patterns
-      throw NotFoundException.getNotFoundInstance();
+      throw new NotFoundException();
     }
 
     /*
@@ -225,7 +225,7 @@ final class MultiFinderPatternFinder extends FinderPatternFinder {
     }
 
     // Nothing found!
-    throw NotFoundException.getNotFoundInstance();
+    throw new NotFoundException();
   }
 
   public FinderPatternInfo[] findMulti(Map<DecodeHintType,?> hints) throws NotFoundException {

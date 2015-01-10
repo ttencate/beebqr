@@ -174,7 +174,7 @@ public final class MultiFormatReader implements Reader {
         }
       }
     }
-    throw NotFoundException.getNotFoundInstance();
+    throw new NotFoundException();
   }
 
 }

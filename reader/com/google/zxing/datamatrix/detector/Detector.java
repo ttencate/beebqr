@@ -104,7 +104,7 @@ public final class Detector {
     }
 
     if (maybeTopLeft == null || bottomLeft == null || maybeBottomRight == null) {
-      throw NotFoundException.getNotFoundInstance();
+      throw new NotFoundException();
     }
 
     // Bottom left is correct but top left and bottom right might be switched
