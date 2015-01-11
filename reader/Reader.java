@@ -48,11 +48,6 @@ public class Reader {
         default:
           throw new RuntimeException(image.getRaster().getSampleModel().getNumBands() + " bands");
       }
-      if (image.getRaster().getSampleModel().getNumBands() != 3) {
-      }
-      //System.out.println(width + "x" + height + " " + rgb.length);
-
-      //System.out.println(String.format("%02x %02x %02x %02x", argb[0], argb[1], argb[2], argb[3]));
 
       LuminanceSource luminanceSource = new RGBLuminanceSource(width, height, argb);
       Binarizer binarizer = new HybridBinarizer(luminanceSource);
@@ -66,7 +61,18 @@ public class Reader {
       QRCodeReader reader = new QRCodeReader();
       Result result = reader.decode(bitmap, hints);
 
-      System.out.println(result);
+      byte[] bytes = result.getRawBytes();
+      String text = result.getText();
+      System.err.println("Decoded " + bytes.length + " bytes");
+      for (byte b : bytes) {
+        System.err.print(String.format("%02x ", b));
+      }
+      System.err.println();
+      System.err.println("Decoded " + text.length() + " chars");
+      for (int i = 0; i < text.length(); i++) {
+        System.err.print(String.format("%02x ", Character.codePointAt(text, i)));
+      }
+      System.err.println();
     } catch (Exception ex) {
       ex.printStackTrace();
       System.exit(1);

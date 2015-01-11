@@ -155,6 +155,10 @@ final class BitMatrixParser {
     FormatInformation formatInfo = readFormatInformation();
     Version version = readVersion();
 
+    System.err.println("Data mask: " + formatInfo.getDataMask());
+    System.err.println("Error correction level: " + formatInfo.getErrorCorrectionLevel());
+    System.err.println("Version: " + version);
+
     // Get the data mask for the format used in this QR Code. This will exclude
     // some bits from reading as we wind through the bit matrix.
     DataMask dataMask = DataMask.forReference(formatInfo.getDataMask());

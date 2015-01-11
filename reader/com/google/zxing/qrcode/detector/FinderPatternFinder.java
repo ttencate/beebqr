@@ -587,10 +587,25 @@ public class FinderPatternFinder {
    */
   private FinderPattern[] selectBestPatterns() throws NotFoundException {
 
+    System.err.println("Found " + possibleCenters.size() + " possible finder patterns:");
+    for (FinderPattern center : possibleCenters) {
+      System.err.println(center + " count=" + center.getCount() + " size=" + center.getEstimatedModuleSize());
+    }
+
     int startSize = possibleCenters.size();
     if (startSize < 3) {
       // Couldn't find enough finder patterns
       throw new NotFoundException();
+    }
+
+    // Throw away finder patterns in the wrong quadrant
+    for (int i = 0; i < possibleCenters.size(); i++) {
+      FinderPattern pattern = possibleCenters.get(i);
+      if (pattern.getX() > 0.5f * image.getWidth() &&
+          pattern.getY() > 0.5f * image.getHeight()) {
+        possibleCenters.remove(i);
+        i--;
+      }
     }
 
     // Filter outlier possibilities whose module size is too different
@@ -618,6 +633,8 @@ public class FinderPatternFinder {
         }
       }
     }
+
+    System.err.println("After culling, " + possibleCenters.size() + " are left");
 
     if (possibleCenters.size() > 3) {
       // Throw away all but those first size candidate points we found.

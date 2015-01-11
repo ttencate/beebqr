@@ -80,6 +80,10 @@ public class Detector {
     FinderPatternFinder finder = new FinderPatternFinder(image, resultPointCallback);
     FinderPatternInfo info = finder.find(hints);
 
+    System.err.println("top left: " + info.getTopLeft());
+    System.err.println("top right: " + info.getTopRight());
+    System.err.println("bottom left: " + info.getBottomLeft());
+
     return processFinderPatternInfo(info);
   }
 

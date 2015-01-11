@@ -220,6 +220,12 @@ void generate_error_codewords(unsigned char *data, unsigned char *error) {
     data += 119;
     error += 30;
   }
+
+  error -= 750;
+  for (int i = 0; i < 30; i++) fprintf(stderr, "%02x ", error[i]);
+  fprintf(stderr, "\n");
+  for (int i = 30; i < 60; i++) fprintf(stderr, "%02x ", error[i]);
+  fprintf(stderr, "\n");
 }
 
 void write_byte(unsigned char *output, int *pi, int *pj, int *pidir, int *pjdir, unsigned char byte) {
