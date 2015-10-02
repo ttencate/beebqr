@@ -3,7 +3,7 @@ An experimental program for the BBC Microcomputer to transfer data via QR codes.
 
 Sadly unfinished, but there is a working C implementation.
 
-See my series of blog posts, [starting here](https://docs.google.com/document/d/18O-EtmXu3qvRLO4IQyx3XLqjp_6Zi-8RUnvBFCZ4ujU/edit#heading=h.cg7o5mjf0y8j), for more information.
+See my series of blog posts, [starting here](http://typethinker.blogspot.de/2015/01/qr-codes-on-bbc-micro-part-1-of-6.html), for more information.
 
 ## License (BSD 3-Clause)
 
